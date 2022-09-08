@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    @apply bg-gray-50;
+}
+
+@layer utilities {
+    .container {
+        @apply max-w-[1024px] mx-auto;
+    }
+}
