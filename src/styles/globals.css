@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-    @apply bg-gray-50;
+    @apply bg-primary-50;
 }
 
 @layer utilities {
