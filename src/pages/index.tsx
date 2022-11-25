@@ -120,10 +120,10 @@ const Home: NextPage<HomeProps> = (props) => {
       </Head>
 
       <header className='bg-white'>
-        <div className='container'>
+        <div className='container px-6'>
           <div className='flex justify-between items-center'>
-            <h1 className='opacity-70 text-3xl'>Ramais<span>.</span><strong>SI</strong></h1>
-            <img src="/logo-ifbaiano.svg" alt="IF Baiano Santa Inês" />
+            <h1 className='sm:py-0 py-4 opacity-70 text-3xl'>Ramais<span>.</span><strong>SI</strong></h1>
+            <img className='hidden sm:block' src="/logo-ifbaiano.svg" alt="IF Baiano Santa Inês" />
           </div>
         </div>
         <div className='h-[8.125rem] bg-primary-500' />
@@ -132,9 +132,9 @@ const Home: NextPage<HomeProps> = (props) => {
       <main className='-mt-[3.5rem]'>
 
         {/* SUMARY COMPONENT */}
-        <div className='container'>
+        <div className='hidden sm:block container px-6'>
 
-          <div className='flex gap-5'>
+          <div className='flex gap-5 flex-wrap'>
             <div className='flex-1 pt-4 px-5 pb-5 bg-white rounded-lg shadow'>
               <strong className='text-3xl font-semibold text-primary-500'>{sumary.ramaisCount}</strong>
               <p className='mt-3 text-lg font-medium text-gray-800'>Ramais</p>
@@ -156,10 +156,10 @@ const Home: NextPage<HomeProps> = (props) => {
         </div>
 
         {/* RAMAIS LIST COMPONENT */}
-        <div className='container'>
+        <div className='sm:mt-0 -mt-[10.5rem] container px-6'>
           <div className='flex gap-5 my-20'>
             <div className='flex-1'>
-              <label htmlFor="searchRamal" className='block text-lg font-medium mb-2 text-gray-800'>Digite o nome do setor, servidor ou número do ramal</label>
+              <label htmlFor="searchRamal" className='block text-lg font-medium mb-2 sm:w-[15rem] w-[20rem] sm:text-gray-800 text-white'>Digite o nome do setor, servidor ou número do ramal</label>
               <input 
                 className='px-4 h-14 w-full rounded-lg shadow border border-gray-300 ring-offset-2 focus:ring-2 focus:outline-none focus:ring-primary-500 text-xl placeholder:text-zinc-300 placeholder:text-xl'
                 placeholder=''
@@ -172,7 +172,7 @@ const Home: NextPage<HomeProps> = (props) => {
               />
               <span className='mt-2 block text-gray-500 font-normal'>Ex: núcleo de gestão da tecnologia da informação</span>
             </div>
-            <div className='flex-1 flex justify-center items-center px-6'>
+            <div className='hidden md:flex-1 md:flex justify-center items-center px-6'>
               <p className='text-2xl leading-8 w-[21rem] text-gray-800'>
                 Encontre o ramal que procura
                 de forma rápida, organizada
@@ -183,7 +183,7 @@ const Home: NextPage<HomeProps> = (props) => {
         </div>
 
         {/* RAMAIS TABLE COMPONENT */}
-        <div className='container'>
+        <div className='container px-6'>
 
           {
             filter.length > 0 && (
@@ -230,7 +230,7 @@ const Home: NextPage<HomeProps> = (props) => {
                   <FiFrown className='text-5xl' />
                   <strong className='text-xl'>Ops...!</strong>
                 </div>
-                <p className='text-lg text-gray-700'>Sua pesquisa não retornou nehum resultado. </p>
+                <p className='text-center text-lg text-gray-700'>Sua pesquisa não retornou nehum resultado. </p>
               </div>
             )
           }
@@ -240,8 +240,8 @@ const Home: NextPage<HomeProps> = (props) => {
       </main>
 
       <footer className='bg-primary-500 w-full mt-20 text-white border-t-4 border-secundary-500'>
-        <div className='container'>
-          <div className='flex justify-between pt-12 pb-10'>
+        <div className='container px-6'>
+          <div className='flex flex-wrap gap-4 justify-between pt-12 pb-10'>
             <div>
               <span className='text-sm opacity-70'>Lista de ramais</span>
               <p className='text-sm font-semibold'>IF Baiano Santa Inês</p>
