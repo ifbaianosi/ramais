@@ -1,104 +1,114 @@
-import type { NextPage } from 'next'
+import type { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { FiFrown } from "react-icons/fi";
 
-import { ramais, Ramal } from '../../ramais.mockdata'
+import { api } from '../lib/api'
 
-interface Sumary {
-  totalRamais: number,
-  totalSetores: number,
-  totalServidores: number,
+interface Employee {
+  id: string;
+  name: string;
 }
 
-const Home: NextPage = () => {
+interface Departament {
+  id: string;
+  name: string;
+  initials: string;
+  employees: Employee[];
+}
+
+interface Ramall {
+  id: string;
+  numero: number
+}
+
+interface RamalResponse {
+  id: string;
+  ramal: Ramall;
+  departament: Departament;
+}
+
+interface Sumary {
+  ramaisCount: number,
+  departmentsCount: number,
+  employeesCount: number,
+}
+
+interface HomeProps {
+  ramaisCount: number;
+  departmentsCount: number,
+  employeesCount: number,
+  ramais: RamalResponse[]
+}
+
+const Home: NextPage<HomeProps> = (props) => {
+  const [ramais, setRamais] = useState<RamalResponse[]>(props.ramais)
+
   const [search, setSearch] = useState('')
-  const listaRamais: Ramal[] = ramais
+  // let filter = [...ramais]
 
-  let setores: string[] = []
-  let servidores: {id: number, nome: string}[] = []
+  async function fetchRamais() {
+    const response = await api.get('/ramais')
 
-  ramais.forEach(ramal => {
-    ramal.servidores.forEach((servidor, index) => {
-      if (servidores.length == 0) {
-        servidores.push(servidor)
-
-      } else {
-
-        if (!servidores.includes(servidor)) {
-          servidores.push(servidor)
-        }
-
-      }
-    })
-  })
-
-
-  const summaryRamais = {
-    totalRamais: listaRamais.length,
-    tatalSetores: listaRamais.filter((ramal) => {
-      if (!setores.includes(ramal.setor)){
-        setores.push(ramal.setor)
-        return ramal.setor
-      }
-    }).length,
-    totalServidores: servidores.length
+    setRamais(response.data)
   }
 
+
+  // useEffect(() => {
+  //   fetchRamais()
+  // }, [])
+
   
-  let filteredRamais: Ramal[] = []
-  
+  const sumary: Sumary = {
+    ramaisCount: props.ramaisCount,
+    departmentsCount: props.departmentsCount,
+    employeesCount: props.employeesCount
+  } 
+
+  let filter: RamalResponse[]
+
   if (search.length > 0) {
-    filteredRamais = searchBySetor()
+    filter = searchBySetor()
     
-    if (filteredRamais.length === 0) {
-      filteredRamais = searchByServidor()
+    if (filter.length === 0) {
+      filter = searchByServidor()
       
-      if (filteredRamais.length === 0) {
-        filteredRamais = searchByNumberRamal()
+      if (filter.length === 0) {
+        filter = searchByNumberRamal()
       }
     } 
     
   } else {
-    filteredRamais = ramais
+    filter = [...ramais]
   }
   
   function searchByNumberRamal() {
-    return ramais.filter(ram => ram.ramal.toString().startsWith(search))
+    return ramais.filter(ram => ram.ramal.numero.toString().startsWith(search))
   }
 
   function searchBySetor() {
-    return ramais.filter(ram => ram.setor.toLowerCase().includes(search.toLowerCase()))
+    let resultFilterBySetor = ramais.filter(ram => ram.departament.initials.toLowerCase().includes(search.toLowerCase()))
+
+    if (resultFilterBySetor.length === 0) {
+      resultFilterBySetor = ramais.filter(ram => ram.departament.name.toLowerCase().includes(search.toLowerCase().normalize()))
+    }
+
+    return resultFilterBySetor
   }
 
   function searchByServidor() {
-    let ramaisFiltrador: Ramal[] = []
-    
-    ramais.forEach(ramal => {
-      ramal.servidores.map(servidor => {
-        if (servidor.nome.toLowerCase().includes(search.toLowerCase())) {
-          ramaisFiltrador.push(ramal)
-        }
-      })
-    })
-
-    return ramaisFiltrador
-  }
-
-  function searchByServidor2() {
-    let ramaisFiltrados: Ramal[] = []
+    let ramaisByEmployee: RamalResponse[] = []
 
     ramais.forEach(ramal => {
-      const servidores = ramal.servidores
-
-      let servidoresFiltrados = servidores.filter(servidor => {
-        if (servidor.nome.toLowerCase().includes(search.toLowerCase())) {
-          ramaisFiltrados.push(ramal)
-        }
-      })
-
+      ramal.departament.employees
+        .map((employee) => {
+          if (employee.name.toLowerCase().includes(search.toLowerCase())) {
+            ramaisByEmployee.push(ramal)
+          }
+        })
     })
-    
-    return ramaisFiltrados
+
+    return ramaisByEmployee
   }
 
   return (
@@ -126,20 +136,20 @@ const Home: NextPage = () => {
 
           <div className='flex gap-5'>
             <div className='flex-1 pt-4 px-5 pb-5 bg-white rounded-lg shadow'>
-              <strong className='text-3xl font-semibold text-primary-500'>{summaryRamais.totalRamais}</strong>
-              <p className='mt-3 text-lg font-medium opacity-50'>Ramais</p>
+              <strong className='text-3xl font-semibold text-primary-500'>{sumary.ramaisCount}</strong>
+              <p className='mt-3 text-lg font-medium text-gray-800'>Ramais</p>
             </div>
 
             
             <div className='flex-1 pt-4 px-5 pb-5 bg-white rounded-lg shadow'>
-              <strong className='text-3xl font-semibold text-primary-500'>{summaryRamais.tatalSetores}</strong>
-              <p className='mt-3 text-lg font-medium opacity-50'>Setores</p>
+              <strong className='text-3xl font-semibold text-primary-500'>{sumary.departmentsCount}</strong>
+              <p className='mt-3 text-lg font-medium text-gray-800'>Setores</p>
             </div>
 
             
             <div className='flex-1 pt-4 px-5 pb-5 bg-white rounded-lg shadow'>
-              <strong className='text-3xl font-semibold text-primary-500'>{summaryRamais.totalServidores}</strong>
-              <p className='mt-3 text-lg font-medium opacity-50'>Servidores</p>
+              <strong className='text-3xl font-semibold text-primary-500'>{sumary.employeesCount}</strong>
+              <p className='mt-3 text-lg font-medium text-gray-800'>Servidores</p>
             </div>
           </div>
 
@@ -149,10 +159,10 @@ const Home: NextPage = () => {
         <div className='container'>
           <div className='flex gap-5 my-20'>
             <div className='flex-1'>
-              <label htmlFor="searchRamal" className='block text-base font-medium opacity-70 mb-2'>Digite o nome do setor, servidor ou número do ramal</label>
+              <label htmlFor="searchRamal" className='block text-lg font-medium mb-2 text-gray-800'>Digite o nome do setor, servidor ou número do ramal</label>
               <input 
                 className='px-4 h-14 w-full rounded-lg shadow border border-gray-300 ring-offset-2 focus:ring-2 focus:outline-none focus:ring-primary-500 text-xl placeholder:text-zinc-300 placeholder:text-xl'
-                placeholder='Procurar ramal'
+                placeholder=''
                 type="text" 
                 autoComplete='off'
                 name="search" 
@@ -160,9 +170,10 @@ const Home: NextPage = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+              <span className='mt-2 block text-gray-500 font-normal'>Ex: núcleo de gestão da tecnologia da informação</span>
             </div>
             <div className='flex-1 flex justify-center items-center px-6'>
-              <p className='text-2xl leading-8 w-[21rem]'>
+              <p className='text-2xl leading-8 w-[21rem] text-gray-800'>
                 Encontre o ramal que procura
                 de forma rápida, organizada
                 e eficiente
@@ -173,9 +184,16 @@ const Home: NextPage = () => {
 
         {/* RAMAIS TABLE COMPONENT */}
         <div className='container'>
-          <h2 className='mb-4'>{filteredRamais.length} rama{filteredRamais.length > 1 ? 'is' : 'l'} encontrado{filteredRamais.length > 1 ? 's' : ''}</h2>
 
-          <table className='w-full border-collapse border-spacing-1'>
+          {
+            filter.length > 0 && (
+              <h2 className='mb-4'> {`Sua pesquisa retornou ${filter.length} ramais.`}  </h2>
+            )
+          }
+
+          {
+            filter.length > 0 ? (
+              <table className='w-full border-collapse border-spacing-1'>
 
             <thead className='bg-primary-200'>
               <tr className='text-left text-sm font-semibold border-b-4 border-secundary-50 text-primary-500'>
@@ -187,18 +205,18 @@ const Home: NextPage = () => {
 
             <tbody>
               
-              {filteredRamais.map(ramal => {
-                  const servidores = ramal.servidores.length > 0 
-                    ? ramal.servidores
-                        .map(servidor => servidor.nome)
+              {filter.map(ramais => {
+                  const employees = ramais.departament.employees.length > 0 
+                    ? ramais.departament.employees
+                        .map(employee => employee.name)
                         .reduce((anterior, atual) => anterior.concat(", " + atual))
                     : "__"
   
                   return(
-                    <tr key={ramal.id} className='bg-white border-b-2 border-b-2-transparent'>
-                      <td className='py-4 pl-4 opacity-70'>{ramal.setor}</td>
-                      <td className='py-4 pl-4 font-medium'>{servidores}</td>
-                      <td className='text-right text-2xl font-bold pr-4'>{ramal.ramal}</td>
+                    <tr key={ramais.id} className='bg-white border-b-2 border-b-2-transparent'>
+                      <td className='py-4 pl-4 opacity-70'>{` ${ramais.departament.initials} - ${ramais.departament.name}`}</td>
+                      <td className='py-4 pl-4 font-medium'>{employees}</td>
+                      <td className='text-right text-3xl  font-bold pr-4'>{ramais.ramal.numero}</td>
                     </tr>
                   )
               })}
@@ -206,6 +224,17 @@ const Home: NextPage = () => {
             </tbody>
 
           </table>
+            ) : (
+              <div className='flex flex-col items-center gap-2 bg-white py-8'>
+                <div className='flex gap-2 items-center text-orange-400'>
+                  <FiFrown className='text-5xl' />
+                  <strong className='text-xl'>Ops...!</strong>
+                </div>
+                <p className='text-lg text-gray-700'>Sua pesquisa não retornou nehum resultado. </p>
+              </div>
+            )
+          }
+          
         </div>
 
       </main>
@@ -233,3 +262,26 @@ const Home: NextPage = () => {
 }
 
 export default Home
+
+export const getStaticProps: GetStaticProps = async () => {
+  const [ramaisCountResponse, departmentsCountResponse, employeesCountResponse, ramaisResponse] = await Promise.all([
+    api.get('/ramais/count'),
+    api.get('/departments/count'),
+    api.get('/employees/count'),
+    api.get('/ramais')
+  ]);
+
+  console.log(ramaisResponse.data)
+
+  // const ramais = ramaisResponse.data
+
+  return {
+    props: {
+      ramaisCount: ramaisCountResponse.data.count,
+      departmentsCount: departmentsCountResponse.data.count,
+      employeesCount: employeesCountResponse.data.count,
+      ramais: ramaisResponse.data
+    },
+    revalidate: 10 * 60, // 10 minutes
+  };
+};
