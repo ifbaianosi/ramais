@@ -10,7 +10,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const ramais = await prisma.ramais.findMany({    
+  const ramais = await prisma.ramais.findMany({ 
+    distinct: ["departmentId"],
     include: { 
       ramal: {
         select: {
@@ -30,13 +31,23 @@ export default async function handler(
               id: true,
               name: true
             }
+          },
+
+          ramais: {
+            select: {
+              ramal: {
+                select: {
+                  numero: true
+                }
+              }
+            }
           }
         }
       }
     }
   })
 
-  console.log(ramais)
+  console.log(ramais[0].departament.ramais[0])
 
   return res.status(200).json(ramais)
 }

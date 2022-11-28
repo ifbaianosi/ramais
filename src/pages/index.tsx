@@ -15,6 +15,7 @@ interface Departament {
   name: string;
   initials: string;
   employees: Employee[];
+  ramais: { ramal: {numero: string }}[];
 }
 
 interface Ramall {
@@ -187,7 +188,7 @@ const Home: NextPage<HomeProps> = (props) => {
 
           {
             filter.length > 0 && (
-              <h2 className='mb-4'> {`Sua pesquisa retornou ${filter.length} ramais.`}  </h2>
+              <h2 className='mb-4'> {`Sua pesquisa retornou ${filter.length} resultado${filter.length > 1 ? 's' : ''}.`}  </h2>
             )
           }
 
@@ -211,12 +212,14 @@ const Home: NextPage<HomeProps> = (props) => {
                         .map(employee => employee.name)
                         .reduce((anterior, atual) => anterior.concat(", " + atual))
                     : "__"
-  
+
+                  const ramaisOfDepartment = ramais.departament.ramais.map(item => item.ramal.numero).reduce((anterior, atual) => String(atual).concat(", " + String(anterior)))
+
                   return(
                     <tr key={ramais.id} className='bg-white border-b-2 border-b-2-transparent'>
                       <td className='py-4 pl-4 opacity-70'>{` ${ramais.departament.initials} - ${ramais.departament.name}`}</td>
                       <td className='py-4 pl-4 font-medium'>{employees}</td>
-                      <td className='text-right text-3xl  font-bold pr-4'>{ramais.ramal.numero}</td>
+                      <td className='text-right text-3xl  font-bold pr-4'>{ramaisOfDepartment}</td>
                     </tr>
                   )
               })}
