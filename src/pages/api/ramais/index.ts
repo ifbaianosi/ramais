@@ -12,6 +12,11 @@ export default async function handler(
 ) {
   const ramais = await prisma.ramais.findMany({ 
     distinct: ["departmentId"],
+    orderBy: {
+      ramal: {
+        numero: "asc"
+      }
+    },
     include: { 
       ramal: {
         select: {
